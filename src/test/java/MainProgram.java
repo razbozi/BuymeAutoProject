@@ -1,3 +1,5 @@
+import com.aventstack.extentreports.ExtentReports;
+import com.aventstack.extentreports.ExtentTest;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
@@ -8,6 +10,8 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 import javax.swing.*;
 import java.util.NoSuchElementException;
@@ -17,14 +21,22 @@ import static org.openqa.selenium.By.*;
 import static org.openqa.selenium.support.locators.RelativeLocator.withTagName;
 
 public class MainProgram {
+
+    private static ExtentReports report ;
+    private static ExtentTest test ;
+
     private static ChromeDriver driver;
 
-    public static void main(String[] args) {
-        System.setProperty("webdriver.chrome.driver", "D:\\Automation Course\\chromedriver.exe");
-        driver = new ChromeDriver();
-        driver.get(GeneralParameters.BaseUrl);
+public static void main(String[] args) {
 
-        //Registration page
+
+    System.setProperty("webdriver.chrome.driver", "D:\\Automation Course\\chromedriver.exe");
+    driver = new ChromeDriver();
+    driver.get(GeneralParameters.BaseUrl);
+    driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+
+//Registration page
+
         try {
             driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
             driver.manage().window().maximize();
@@ -58,7 +70,7 @@ public class MainProgram {
         catch (NoSuchElementException e){
             e.printStackTrace();
         }
-//Pick Business
+//Pick Business page
 
         String URL = driver.getCurrentUrl();
         Assert.assertEquals(URL, Pick_Business.url);
@@ -67,7 +79,8 @@ public class MainProgram {
         wait.until(ExpectedConditions.elementToBeClickable(Pick_Business.Choose_Gift));
         driver.findElement(Pick_Business.Choose_Gift).click();
 
-//Sender & reciever information screen
+//Sender & reciever information screen page
+
         wait.until(ExpectedConditions.elementToBeClickable(GiftSendPage.SendGiftTo));
         driver.findElement(GiftSendPage.SendGiftTo).sendKeys(GiftSendPage.HappyPerson);
 
@@ -82,33 +95,21 @@ public class MainProgram {
 
         driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
 
-        //how to send
+//how to send page
+
         driver.findElement(HowToSend.SendWay).click();
         driver.findElement(HowToSend.PhoneArea).sendKeys(HowToSend.PhoneReceiver);
-      //  wait.until(ExpectedConditions.elementToBeClickable(HowToSend.FromWhomArea));
+        wait.until(ExpectedConditions.elementToBeClickable(HowToSend.FromWhomArea));
 
-        WebElement element = driver.findElement((HowToSend.FromWhomArea));
-        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", element);
 
         driver.findElement(HowToSend.FromWhomArea).clear();
         driver.findElement(HowToSend.FromWhomArea).sendKeys(HowToSend.FromWhomName);
- //       wait.until(ExpectedConditions.elementToBeClickable(HowToSend.ToWhomArea));
-//        driver.findElement(HowToSend.ToWhomArea).sendKeys(HowToSend.PhoneSender);
-//        driver.findElement(HowToSend.ProceedToPayment).click();
+        wait.until(ExpectedConditions.elementToBeClickable(HowToSend.ToWhomArea));
+        driver.findElement(HowToSend.ToWhomArea).sendKeys(HowToSend.PhoneSender);
+        driver.findElement(HowToSend.ProceedToPayment).click();
 
         Assert.assertEquals(HowToSend.FromWhomName, "צוות אוטומציה");
         Assert.assertEquals(GiftSendPage.HappyPerson, "עובדיה");
 
-
-
-
-
-
     }
-
-
-
-
-
-
 }
