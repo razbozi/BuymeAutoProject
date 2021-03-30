@@ -1,45 +1,84 @@
 import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebElement;
+import com.aventstack.extentreports.MediaEntityBuilder;
+import com.aventstack.extentreports.Status;
+import com.aventstack.extentreports.reporter.ExtentSparkReporter;
+import org.apache.commons.io.FileUtils;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.support.How;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import javax.swing.*;
-import java.util.NoSuchElementException;
+import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-import static org.openqa.selenium.By.*;
-import static org.openqa.selenium.support.locators.RelativeLocator.withTagName;
+import static org.openqa.selenium.By.className;
+
 
 public class MainProgram {
 
-    private static ExtentReports report ;
-    private static ExtentTest test ;
-
-    private static ChromeDriver driver;
-
-public static void main(String[] args) {
+    private static WebDriver driver;
+    private static ExtentReports extent;
+    private static ExtentTest test;
 
 
-    System.setProperty("webdriver.chrome.driver", "D:\\Automation Course\\chromedriver.exe");
-    driver = new ChromeDriver();
-    driver.get(GeneralParameters.BaseUrl);
-    driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
 
-//Registration page
+    @BeforeClass
+    public static void beforeClass () {
+        String cwd = System.getProperty("D:\\Automation Course");
+        ExtentSparkReporter htmlReporter = new ExtentSparkReporter(cwd + "\\extent.html");
+        // attach reporter
+        extent = new ExtentReports();
+        extent.attachReporter(htmlReporter);
+        // name your test and add description
+        test = extent.createTest("BuyMe Automation Project", "Sanity Test for BuyMe Web site");
+        // add custom system info
+        extent.setSystemInfo("Environment", "QA");
+        extent.setSystemInfo("Tester", "Raz");
+        // log results
+        test.log(Status.INFO, "@Before class");
+
+        boolean driverEstablish = false;
 
         try {
-            driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+            System.setProperty("webdriver.chrome.driver", "D:\\Automation Course\\chromedriver.exe");
+            driver = new ChromeDriver();
+            driver.get(GeneralParameters.BaseUrl);
             driver.manage().window().maximize();
+
+            driverEstablish = true;
+
+//            String timeNow = String.valueOf(System.currentTimeMillis());
+//            test.info("details", MediaEntityBuilder.createScreenCaptureFromPath(takeScreenShot(timeNow)).build());
+//            driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            test.log(Status.FAIL, "BuyMe website was not found " + e.getMessage());
+            driverEstablish = false;
+
+        } finally {
+            if (driverEstablish) {
+                test.log(Status.PASS, "Open webpage " + "Webpage opened successfully");
+            }
+        }
+    }
+
+
+//Registration page
+    @Test
+    public void registrationPage_01 () {
+        boolean Registration = false;
+        try {
+         //   driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+        //    driver.manage().window().maximize();
             driver.findElement(className("seperator-link")).click();
             driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
 
@@ -49,67 +88,136 @@ public static void main(String[] args) {
             driver.findElement(RegistrationParam.Password).sendKeys(RegistrationParam.PasswordToSend);
             driver.findElement(RegistrationParam.RepeatPassword).sendKeys(RegistrationParam.PasswordToSend);
             driver.findElement(RegistrationParam.Submit).click();
-        }
-        catch (org.openqa.selenium.NoSuchElementException e) {
+            Registration = true;
+        } catch (Exception e) {
             e.printStackTrace();
+            test.log(Status.FAIL, "Registration process fail " + e.getMessage());
+        } finally {
+            if (Registration) {
+                test.log(Status.PASS, "Registration process completed successfully");
+            }
         }
+    }
+
 
 //Home Page
-        try {
-            driver.findElement(HomePage.Price).click();
-            driver.findElement(HomePage.Choose_Price).click();
+        @Test
+                public void homePage_02 () {
 
-            driver.findElement(HomePage.Area).click();
-            driver.findElement(HomePage.Choose_Area).click();
+        boolean homePage = false;
+                try {
+                    driver.findElement(HomePage.Price).click();
+                    driver.findElement(HomePage.Choose_Price).click();
+                    driver.findElement(HomePage.Area).click();
+                    driver.findElement(HomePage.Choose_Area).click();
+                    driver.findElement(HomePage.Category).click();
+                    driver.findElement(HomePage.Choose_Category).click();
+                    driver.findElement(HomePage.Find).click();
 
-            driver.findElement(HomePage.Category).click();
-            driver.findElement(HomePage.Choose_Category).click();
+                    homePage = true;
 
-            driver.findElement(HomePage.Find).click();
-        }
-        catch (NoSuchElementException e){
-            e.printStackTrace();
-        }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    test.log(Status.FAIL, "homePage process was fail " + e.getMessage());
+                } finally {
+                    if (homePage) {
+                        test.log(Status.PASS, "homePage process completed successfully");
+                    }
+                }
+    }
 //Pick Business page
+    @Test
+        public void businessPage_03 () {
 
-        String URL = driver.getCurrentUrl();
-        Assert.assertEquals(URL, Pick_Business.url);
+        try {
 
-        WebDriverWait wait = new WebDriverWait(driver, 10);
-        wait.until(ExpectedConditions.elementToBeClickable(Pick_Business.Choose_Gift));
-        driver.findElement(Pick_Business.Choose_Gift).click();
+            boolean busi = false;
+
+            String URL = driver.getCurrentUrl();
+            Assert.assertEquals(URL, Pick_Business.url);
+
+            WebDriverWait wait = new WebDriverWait(driver, 10);
+            wait.until(ExpectedConditions.elementToBeClickable(Pick_Business.Choose_Gift));
+            driver.findElement(Pick_Business.Choose_Gift).click();
+
+            busi = true;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            test.log(Status.FAIL, "Business was fail " + e.getMessage());
+        }
+    }
 
 //Sender & reciever information screen page
 
-        wait.until(ExpectedConditions.elementToBeClickable(GiftSendPage.SendGiftTo));
-        driver.findElement(GiftSendPage.SendGiftTo).sendKeys(GiftSendPage.HappyPerson);
+    @Test
+            public void infoScreen_04 () {
+        boolean info = false;
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, 20);
 
-        driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+            wait.until(ExpectedConditions.elementToBeClickable(GiftSendPage.SendGiftTo));
+            driver.findElement(GiftSendPage.SendGiftTo).sendKeys(GiftSendPage.HappyPerson);
 
-        driver.findElement(GiftSendPage.EventType).click();
-        wait.until(ExpectedConditions.elementToBeClickable(GiftSendPage.ChooseEvent));
-        driver.findElement(GiftSendPage.ChooseEvent).click();
-        driver.findElement(GiftSendPage.BlessingArea).clear();
-        driver.findElement(GiftSendPage.BlessingArea).sendKeys(GiftSendPage.MyBlessing);
-        driver.findElement(GiftSendPage.Proceed).click();
+            driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
 
-        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+            driver.findElement(GiftSendPage.EventType).click();
+            wait.until(ExpectedConditions.elementToBeClickable(GiftSendPage.ChooseEvent));
+            driver.findElement(GiftSendPage.ChooseEvent).click();
+            driver.findElement(GiftSendPage.BlessingArea).clear();
+            driver.findElement(GiftSendPage.BlessingArea).sendKeys(GiftSendPage.MyBlessing);
+            driver.findElement(GiftSendPage.Proceed).click();
+
+            driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
 
 //how to send page
 
-        driver.findElement(HowToSend.SendWay).click();
-        driver.findElement(HowToSend.PhoneArea).sendKeys(HowToSend.PhoneReceiver);
-        wait.until(ExpectedConditions.elementToBeClickable(HowToSend.FromWhomArea));
+            driver.findElement(HowToSend.SendWay).click();
+            driver.findElement(HowToSend.PhoneArea).sendKeys(HowToSend.PhoneReceiver);
+            wait.until(ExpectedConditions.elementToBeClickable(HowToSend.FromWhomArea));
 
 
-        driver.findElement(HowToSend.FromWhomArea).clear();
-        driver.findElement(HowToSend.FromWhomArea).sendKeys(HowToSend.FromWhomName);
-        wait.until(ExpectedConditions.elementToBeClickable(HowToSend.ToWhomArea));
-        driver.findElement(HowToSend.ToWhomArea).sendKeys(HowToSend.PhoneSender);
-        driver.findElement(HowToSend.ProceedToPayment).click();
+            driver.findElement(HowToSend.FromWhomArea).clear();
+            driver.findElement(HowToSend.FromWhomArea).sendKeys(HowToSend.FromWhomName);
+            wait.until(ExpectedConditions.elementToBeClickable(HowToSend.ToWhomArea));
+            driver.findElement(HowToSend.ToWhomArea).sendKeys(HowToSend.PhoneSender);
+            driver.findElement(HowToSend.ProceedToPayment).click();
+            info = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            test.log(Status.FAIL, "Information process was fail " + e.getMessage());
+        } finally {
+            if (info) {
+                test.log(Status.PASS, "Information process completed successfully");
+            }
+        }
+    }
+
+    @Test
+            public void assertTest_05 () {
 
         Assert.assertEquals(HowToSend.FromWhomName, "צוות אוטומציה");
         Assert.assertEquals(GiftSendPage.HappyPerson, "עובדיה");
-
     }
-}
+
+    @AfterClass
+    public static void afterClass() {
+        test.log(Status.INFO, "@After test " + "After test method");
+        driver.quit();
+        // build and flush report
+        extent.flush();
+    }
+
+
+            private static String takeScreenShot (String ImagesPath){
+                TakesScreenshot takesScreenshot = (TakesScreenshot) driver;
+                File screenShotFile = takesScreenshot.getScreenshotAs(OutputType.FILE);
+                File destinationFile = new File(ImagesPath + ".png");
+                try {
+                    FileUtils.copyFile(screenShotFile, destinationFile);
+                } catch (IOException e) {
+                    System.out.println(e.getMessage());
+                }
+                return ImagesPath + ".png";
+            }
+        }
