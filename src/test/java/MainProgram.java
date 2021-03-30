@@ -50,8 +50,7 @@ public class MainProgram {
         boolean driverEstablish = false;
 
         try {
-            System.setProperty("webdriver.chrome.driver", "D:\\Automation Course\\chromedriver.exe");
-            driver = new ChromeDriver();
+            driver = DriverSingleton.getDriverInstance();
             driver.get(GeneralParameters.BaseUrl);
             driver.manage().window().maximize();
 
