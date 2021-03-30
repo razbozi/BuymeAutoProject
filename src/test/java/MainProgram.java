@@ -8,13 +8,16 @@ import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
+import org.w3c.dom.Document;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -28,11 +31,10 @@ public class MainProgram {
     private static ExtentReports extent;
     private static ExtentTest test;
 
-
-
     @BeforeClass
-    public static void beforeClass () {
-        String cwd = System.getProperty("D:\\Automation Course");
+    public static void beforeClass() throws Exception {
+
+        String cwd = System.getProperty("user.dir");
         ExtentSparkReporter htmlReporter = new ExtentSparkReporter(cwd + "\\extent.html");
         // attach reporter
         extent = new ExtentReports();
@@ -55,9 +57,9 @@ public class MainProgram {
 
             driverEstablish = true;
 
-//            String timeNow = String.valueOf(System.currentTimeMillis());
-//            test.info("details", MediaEntityBuilder.createScreenCaptureFromPath(takeScreenShot(timeNow)).build());
-//            driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+            String timeNow = String.valueOf(System.currentTimeMillis());
+            test.info("details", MediaEntityBuilder.createScreenCaptureFromPath(takeScreenShot(timeNow)).build());
+            driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -66,42 +68,43 @@ public class MainProgram {
 
         } finally {
             if (driverEstablish) {
-                test.log(Status.PASS, "Open webpage " + "Webpage opened successfully");
+                test.log(Status.PASS, "BuyMe " + "Webpage opened successfully");
             }
         }
+
+
     }
 
 
 //Registration page
-    @Test
+    @Test (priority = 1)
     public void registrationPage_01 () {
-        boolean Registration = false;
+       boolean Registration = false;
         try {
-         //   driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
-        //    driver.manage().window().maximize();
             driver.findElement(className("seperator-link")).click();
             driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
-
             driver.findElement(RegistrationParam.Registration).click();
             driver.findElement(RegistrationParam.Name).sendKeys(RegistrationParam.NameToSend);
             driver.findElement(RegistrationParam.Email).sendKeys(RegistrationParam.EmailToSend);
             driver.findElement(RegistrationParam.Password).sendKeys(RegistrationParam.PasswordToSend);
             driver.findElement(RegistrationParam.RepeatPassword).sendKeys(RegistrationParam.PasswordToSend);
             driver.findElement(RegistrationParam.Submit).click();
-            Registration = true;
+           Registration = true;
+
         } catch (Exception e) {
             e.printStackTrace();
             test.log(Status.FAIL, "Registration process fail " + e.getMessage());
         } finally {
-            if (Registration) {
+            if (Registration)
                 test.log(Status.PASS, "Registration process completed successfully");
             }
         }
-    }
+
+
 
 
 //Home Page
-        @Test
+        @Test (priority = 2)
                 public void homePage_02 () {
 
         boolean homePage = false;
@@ -126,7 +129,7 @@ public class MainProgram {
                 }
     }
 //Pick Business page
-    @Test
+    @Test (priority = 3)
         public void businessPage_03 () {
 
         try {
@@ -150,7 +153,7 @@ public class MainProgram {
 
 //Sender & reciever information screen page
 
-    @Test
+    @Test (priority = 4)
             public void infoScreen_04 () {
         boolean info = false;
         try {
@@ -193,7 +196,7 @@ public class MainProgram {
         }
     }
 
-    @Test
+    @Test (priority = 5)
             public void assertTest_05 () {
 
         Assert.assertEquals(HowToSend.FromWhomName, "צוות אוטומציה");

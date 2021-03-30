@@ -7,7 +7,7 @@ public class RegistrationParam {
     public static final String NameToSend = "David";
 
     public static final By Email = By.xpath("//*[@id=\"ember1379\"]");
-    public static final String EmailToSend = "l77599@gmail.com";
+    public static final String EmailToSend = "l775104@gmail.com";
 
     public static final By Password = By.xpath("//*[@id=\"ember1382\"]");
     public static final String  PasswordToSend = "Vrtkua2010";
